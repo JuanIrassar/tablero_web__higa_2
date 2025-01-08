@@ -31,9 +31,9 @@ library(stringr)
 
 
 # 1. Leer bases ----
-base_SGC <- readxl::read_xlsx("internaciones.xlsx",skip = 5)
+base_SGC <- readxl::read_xlsx("./bases_originales/internaciones.xlsx",skip = 5)
 
-base_SGC_pases <- readxl::read_xlsx("internaciones.xlsx",skip = 4,sheet = "PASES")
+base_SGC_pases <- readxl::read_xlsx("./bases_originales/internaciones.xlsx",skip = 4,sheet = "PASES")
 
 # 2. Modificar base ----
 
@@ -73,6 +73,21 @@ periodo_tiempo <- select(base_SGC,Fecha_Ingreso) %>%
     lubridate::month(Fecha_Ingreso, label = T, abbr = F), "de",
     lubridate::year(Fecha_Ingreso), sep = " "))
 periodo_tiempo <- unique(periodo_tiempo$fecha)
+
+
+# Guardar la base anonimizada
+
+writexl::write_xlsx(base_SGC %>% 
+                      mutate(DOCUMENTO = NULL,
+                             NOMBRE = NULL,
+                             APELLIDO= NULL,
+                             `FECHA NACIMIENTO` = NULL,
+                             PISO = NULL,
+                             DPTO = NULL,
+                             MZA = NULL
+                             ), "./bases_anonimizadas/base_internaciones.xlsx")
+
+writexl::write_xlsx(base_SGC_pases, "./bases_anonimizadas/base_pases_internaciones.xlsx")
 ```
 
 #  {.sidebar}
@@ -325,19 +340,21 @@ bscols(widths = c(9,3),
 
 ```{r Preproceso bases cirugias}
 
+require(dplyr)
+
 base_fojas <- rbind(
-  readxl::read_xlsx("./Fojas quirurgicas/1.estadistica-foja-enero-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/2.estadistica-foja-febrero-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/3.estadistica-foja-marzo-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/4.estadistica-foja-abril-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/5.estadistica-foja-mayo-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/6.estadistica-foja-junio-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/7.estadistica-foja-julio-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/8.estadistica-foja-agosto-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/9.estadistica-foja-septiembre-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/10.estadistica-foja-octubre-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/11.estadistica-foja-noviembre-24.xlsx"),
-  readxl::read_xlsx("./Fojas quirurgicas/12.estadistica-foja-diciembre-24.xlsx"))
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/1.estadistica-foja-enero-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/2.estadistica-foja-febrero-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/3.estadistica-foja-marzo-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/4.estadistica-foja-abril-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/5.estadistica-foja-mayo-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/6.estadistica-foja-junio-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/7.estadistica-foja-julio-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/8.estadistica-foja-agosto-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/9.estadistica-foja-septiembre-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/10.estadistica-foja-octubre-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/11.estadistica-foja-noviembre-24.xlsx"),
+  readxl::read_xlsx("./bases_originales/Fojas quirurgicas/12.estadistica-foja-diciembre-24.xlsx"))
 
 colnames(base_fojas)[2] <- "Tipo_cirugia"
 
@@ -349,6 +366,13 @@ base_fojas <- base_fojas %>%
 cirugias_totales <- nrow(base_fojas)
 cirugias_programadas <- nrow(filter(base_fojas,Tipo_cirugia == "Programada"))
 cirugias_guardia <- nrow(filter(base_fojas,Tipo_cirugia == "Guardia"))
+
+writexl::write_xlsx(base_fojas %>% 
+                      mutate(Paciente = NULL,
+                             Documento = NULL,
+                             Cirujanos = NULL,
+                             `1er ayudante` = NULL,
+                             `2do ayudante` = NULL), "./bases_anonimizadas/base_cirugias.xlsx")
 
 ```
 
@@ -558,10 +582,6 @@ p <- base_fojas %>%
   labs(y = "Cirugias", x = "Mes")
 
 ggplotly(p, tooltip = "y")
-
-#No cambio nada
-
 ```
 
 :::
-aaa
