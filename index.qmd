@@ -8,7 +8,7 @@ format:
     logo: images/Logo HIGA.png
     fig-width: 10
     fig-asp: 0.3
-    theme: solar
+    theme: lumen
     nav-buttons: 
       - icon: linkedin
         href: https://www.linkedin.com/in/juan-ignacio-irassar-442568233/
