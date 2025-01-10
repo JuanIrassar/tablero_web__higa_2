@@ -234,7 +234,7 @@ ggplotly(p, tooltip = "y")
 
 ::: {.card title = "Egresos por dia"}
 
-```{r}
+```{r Egresos por dia}
 library(highcharter)
 library(xts)
 
@@ -261,7 +261,7 @@ highchart(type = "stock") |>
 
 ::: {.card title = "Egresos por mes"}
 
-```{r}
+```{r Egresos por mes}
 #| fig-width: 15
 
 base_SGC <- base_SGC |> 
@@ -293,39 +293,70 @@ ggplotly(p, tooltip = "y")
 
 ::: {.card title = "Ingresos por dia segun servicio"}
 
-```{r}
+```{r Ingresos por servicio}
 #| expandable: false
 
 library(crosstalk)
+
+df <- data.frame(
+  servicio = "CIRUGIA",
+  servicio_1 = "CLINICA MEDICA",
+  servicio_2 = "GINECOLOGIA",
+  servicio_3 = "GUARDIA",
+  servicio_4 = "ORTOPEDIA Y TRAUMATOLOGIA",
+  servicio_5 = "SALUD MENTAL CRÓNICOS",
+  servicio_6 = "SHOCKROOM",
+  servicio_7 = "TERAPIA INTERMEDIA",
+  servicio_8 = "UCO",
+  servicio_9 = "UTI ADULTOS" ,
+  Fecha_Ingreso = seq(from = as.Date('2024-01-01', format = '%Y-%m-%d'), 
+                      to = as.Date('2024-12-31', format = '%Y-%m-%d'), 
+                      by = 'day')) %>% 
+  tidyr::pivot_longer(cols = 1:10,names_to = "borrar",values_to = "servicio") %>% 
+  mutate(borrar = NULL,
+         n_min = 0)
 
 casos_dia <- base_SGC_pases %>% 
   mutate(servicio = if_else(SERVICIO %in% c("CLINICA MEDICA",
                                             "CLINICA GENERAL - MEDICINA GENERAL",
                                             "CLINICA GENERAL CRONICOS","AISLAMIENTO"),
-                                            "CLINICA MEDICA",SERVICIO)) %>% 
+                            "CLINICA MEDICA",SERVICIO)) %>% 
   count(servicio,Fecha_Ingreso) %>% 
-  mutate(mes = lubridate::month(Fecha_Ingreso)) %>% 
+  merge(df, by = c("Fecha_Ingreso","servicio"),all.y = T) %>% 
+  mutate(servicio_2 = if_else(servicio == "SALUD MENTAL CRÓNICOS",
+                            "SALUD MENTAL CRONICOS",servicio),
+         n = if_else(is.na(n),n_min,n),
+         n_min = NULL) %>% 
+  mutate(mes = lubridate::month(Fecha_Ingreso,label = T, abbr = T)) %>% 
   group_by(servicio,mes) %>% 
   mutate(n_mes = sum(n)) %>% 
-  ungroup()
+  ungroup() %>% 
+  mutate(mes_graf = if_else(lubridate::day(Fecha_Ingreso) == 1,mes,NA),
+         n_mes_graf = if_else(lubridate::day(Fecha_Ingreso) == 1,n_mes,NA))
 
 tx <- highlight_key(casos_dia)
 
 bscols(widths = c(9,3),
-  filter_select("servicio", "Servicio", tx, ~servicio, multiple = FALSE),
+  filter_select("servicio_2", "Servicio", tx, ~servicio_2, multiple = FALSE),
   list(
     plot_ly(tx, x = ~Fecha_Ingreso, y = ~n, showlegend = FALSE, width = 1300) %>% 
-    add_lines(color = ~servicio, colors = "lightsalmon"),
+    add_lines(color = ~servicio_2, colors = "lightblue") %>% 
+    layout(yaxis = list(title = "Ingresos por dia"),
+           xaxis = list(title = "Dia de ingreso",),
     
-    plot_ly(tx, x = ~mes, y = ~n_mes, showlegend = FALSE, width = 1300) %>% 
-    add_lines(color = ~servicio, colors = "lightblue") %>% 
-    add_markers(color = ~servicio, colors = "lightblue") %>% 
-    layout(#plot_bgcolor='#e5ecf6',
-           xaxis = list(nticks = 12,
+    plot_ly(tx,showlegend = FALSE, width = 1300) %>% 
+    #add_lines(color = ~servicio, colors = "lightblue") %>% 
+    #add_markers(color = ~servicio, colors = "lightblue") %>% 
+    add_bars(x = ~mes_graf, y = ~n_mes_graf,color = ~servicio_2, colors = "lightblue") %>% 
+    layout(barmode = "stack",
+           #plot_bgcolor='#e5ecf6',
+           yaxis = list(title = "Ingresos por mes"),
+           xaxis = list(title = "Mes",
+                        nticks = 14,
                         #zerolinecolor = '#ffff',
                         #zerolinewidth = 1,
                         gridcolor = 'ffff',
-                        range = list(1, 12)))))
+                        range = list(-0.5, 11.5)))))
   
 
 ```
