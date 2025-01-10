@@ -4,11 +4,11 @@ format:
   dashboard:
     orientation: columns
     scrolling: false
-    #css: styles.css
-    logo: images/Logo HIGA.png
-    fig-width: 10
-    fig-asp: 0.3
-    theme: lumen
+    logo: images/Logo HIGA sf.png
+    fig-width: 20
+    fig-asp: 0.5
+    #css: stlyes.css
+    theme: lumen.scss
     nav-buttons: 
       - icon: linkedin
         href: https://www.linkedin.com/in/juan-ignacio-irassar-442568233/
