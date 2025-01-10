@@ -342,7 +342,7 @@ bscols(widths = c(9,3),
     plot_ly(tx, x = ~Fecha_Ingreso, y = ~n, showlegend = FALSE, width = 1300) %>% 
     add_lines(color = ~servicio_2, colors = "lightblue") %>% 
     layout(yaxis = list(title = "Ingresos por dia"),
-           xaxis = list(title = "Dia de ingreso",),
+           xaxis = list(title = "Dia de ingreso")),
     
     plot_ly(tx,showlegend = FALSE, width = 1300) %>% 
     #add_lines(color = ~servicio, colors = "lightblue") %>% 
